@@ -26,7 +26,7 @@ from storage.cleanup import cleanup
 from storage.writer import write_parquet
 
 
-def run_pipeline(cfg: dict = None) -> dict:
+def run_pipeline(cfg: dict | None = None) -> dict:
     """Run full pipeline once. Returns summary stats."""
     cfg = cfg or get_config()
     data_dir = cfg["storage"]["data_dir"]
@@ -129,7 +129,7 @@ def run_pipeline(cfg: dict = None) -> dict:
     return summary
 
 
-def run_loop(cfg: dict = None):
+def run_loop(cfg: dict | None = None) -> None:
     """Run pipeline continuously at configured interval."""
     cfg = cfg or get_config()
     interval = cfg["ingest"]["interval_minutes"] * 60

@@ -58,7 +58,7 @@ Analyze this article's impact on the market question."""
                 content = content.split("```")[1].strip()
                 if content.startswith("json"):
                     content = content[4:].strip()
-            return json.loads(content)
+            return dict(json.loads(content))  # type: ignore[arg-type]
     except Exception:
         logging.exception("API sentiment analysis failed")
 
@@ -86,7 +86,7 @@ def analyze_with_ollama(
         )
         if r.status_code == 200:
             content = r.json()["message"]["content"]
-            return json.loads(content)
+            return dict(json.loads(content))  # type: ignore[arg-type]
     except Exception:
         logging.exception("Ollama sentiment analysis failed")
 

@@ -9,7 +9,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from config_loader import get_config
 
 
-def cleanup(data_dir: str = None, retention_days: int = None):
+def cleanup(data_dir: str | None = None, retention_days: int | None = None) -> int:
     """Delete date-partitioned directories older than retention_days."""
     cfg = get_config()
     data_dir = data_dir or cfg["storage"]["data_dir"]

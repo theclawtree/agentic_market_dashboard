@@ -8,9 +8,14 @@ KALSHI_API = "https://api.elections.kalshi.com"
 
 def fetch_markets(max_markets: int = 200, min_volume: int = 100) -> pd.DataFrame:
     """Fetch active Kalshi markets via events endpoint."""
+    params: dict[str, str | int] = {
+        "limit": 50,
+        "status": "open",
+        "with_nested_markets": "true",
+    }
     r = requests.get(
         f"{KALSHI_API}/trade-api/v2/events",
-        params={"limit": 50, "status": "open", "with_nested_markets": "true"},
+        params=params,
         timeout=20,
     )
     r.raise_for_status()
