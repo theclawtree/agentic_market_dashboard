@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ruff
+      - run: ruff check platform/
+      - run: ruff format --check platform/
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install mypy pandas-stubs types-requests types-PyYAML
+      - run: cd platform && mypy --ignore-missing-imports .
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          cd platform
+          pip install -e ".[dev]"
+      - name: Run unit tests
+        run: |
+          cd platform
+          pytest tests/ -v --cov=. --cov-report=xml --cov-report=term-missing \
+            -m "not performance" --timeout=30
+      - name: Upload coverage
+        if: matrix.python-version == '3.12'
+        uses: codecov/codecov-action@v4
+        with:
+          file: platform/coverage.xml
+          fail_ci_if_error: false
+
+  performance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: cd platform && pip install -e ".[dev]"
+      - name: Run performance tests
+        run: |
+          cd platform
+          pytest tests/test_performance.py -v -m performance --timeout=60

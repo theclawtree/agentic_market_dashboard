@@ -1,0 +1,19 @@
+Data Feeds
+
+Setup an AWS based real time data feeds hub that pulls data and saves it for a week. 
+
+build a local platform, then move to using
+
+what low cost aws services can be used? 
+
+Use AWS s3 for saving parquet files for training data
+
+follow terraform principals for setting up webservices
+
+Need a cost dashboard to show service usage across AWS and integrate this with both slack and agents choices
+
+... the thing is that if I was autonomous trading via agents I'll need to increase limits or figure out a more hardened scripted approach
+
+What type of self sustaining paltform can be created that uses algorithms plus real time data feeds form news sources.
+
+Find a platform to find successful traders and study their choices. Which models do their actions align with. 

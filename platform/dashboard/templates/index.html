@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Market Platform</title>
+    <meta http-equiv="refresh" content="{{ refresh_interval }}">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+               background: #0a0e17; color: #e2e8f0; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; 
+                   margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #1e293b; }
+        .header h1 { font-size: 1.5rem; color: #38bdf8; }
+        .header .meta { font-size: 0.85rem; color: #64748b; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+                  gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: #111827; border: 1px solid #1e293b; border-radius: 8px; 
+                     padding: 16px; }
+        .stat-card .label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+        .stat-card .value { font-size: 1.5rem; font-weight: 600; margin-top: 4px; }
+        .stat-card .value.green { color: #34d399; }
+        .stat-card .value.blue { color: #38bdf8; }
+        .stat-card .value.amber { color: #fbbf24; }
+        
+        .section { margin-bottom: 32px; }
+        .section h2 { font-size: 1.1rem; color: #94a3b8; margin-bottom: 12px; 
+                       padding-bottom: 8px; border-bottom: 1px solid #1e293b; }
+        
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th { text-align: left; padding: 8px 12px; color: #64748b; font-weight: 500;
+             border-bottom: 1px solid #1e293b; font-size: 0.75rem; text-transform: uppercase; }
+        td { padding: 8px 12px; border-bottom: 1px solid #111827; }
+        tr:hover { background: #111827; }
+        
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 500; }
+        .badge.bullish { background: #064e3b; color: #34d399; }
+        .badge.bearish { background: #7f1d1d; color: #fca5a5; }
+        .badge.neutral { background: #1e293b; color: #94a3b8; }
+        
+        .score-bar { display: inline-block; width: 60px; height: 6px; background: #1e293b; 
+                      border-radius: 3px; overflow: hidden; vertical-align: middle; }
+        .score-bar .fill { height: 100%; border-radius: 3px; }
+        .score-bar .fill.green { background: #34d399; }
+        .score-bar .fill.red { background: #f87171; }
+        .score-bar .fill.gray { background: #64748b; }
+
+        .opportunity-row { cursor: pointer; }
+        .opportunity-row:hover { background: #1a2332; }
+        .truncate { max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .mono { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.8rem; }
+        
+        .empty-state { text-align: center; padding: 40px; color: #475569; }
+        .footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid #1e293b;
+                   font-size: 0.75rem; color: #475569; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 Prediction Market Platform</h1>
+        <div class="meta">
+            Last updated: {{ last_updated }} &nbsp;|&nbsp; 
+            Auto-refresh: {{ refresh_interval }}s &nbsp;|&nbsp;
+            Data retention: {{ retention_days }}d
+        </div>
+    </div>
+
+    <div class="stats">
+        <div class="stat-card">
+            <div class="label">Polymarket Markets</div>
+            <div class="value blue">{{ poly_count }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Kalshi Markets</div>
+            <div class="value blue">{{ kalshi_count }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">News Articles</div>
+            <div class="value amber">{{ news_count }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Opportunities</div>
+            <div class="value green">{{ opp_count }}</div>
+        </div>
+    </div>
+
+    <!-- Top Opportunities -->
+    <div class="section">
+        <h2>🎯 Top Opportunities (Sentiment-Ranked)</h2>
+        {% if opportunities %}
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Platform</th>
+                    <th>Market</th>
+                    <th>Price</th>
+                    <th>Volume</th>
+                    <th>Spread</th>
+                    <th>Score</th>
+                    <th>Sentiment</th>
+                    <th>News</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for opp in opportunities %}
+                <tr class="opportunity-row">
+                    <td class="mono">{{ loop.index }}</td>
+                    <td><span class="badge {{ 'bullish' if opp.platform == 'polymarket' else 'neutral' }}">{{ opp.platform }}</span></td>
+                    <td class="truncate">{{ opp.question }}</td>
+                    <td class="mono">{{ "%.3f"|format(opp.yes_price) }}</td>
+                    <td class="mono">{{ "{:,.0f}".format(opp.volume|float) }}</td>
+                    <td class="mono">{{ opp.spread_display }}</td>
+                    <td>
+                        <div class="score-bar">
+                            <div class="fill {{ 'green' if opp.opportunity_score > 0.5 else 'gray' }}" 
+                                 style="width: {{ (opp.opportunity_score * 100)|int }}%"></div>
+                        </div>
+                        <span class="mono">{{ "%.2f"|format(opp.opportunity_score) }}</span>
+                    </td>
+                    <td><span class="badge {{ opp.sentiment }}">{{ opp.sentiment }}</span></td>
+                    <td class="mono">{{ opp.news_count }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">No opportunities found yet. Run the analysis pipeline first.</div>
+        {% endif %}
+    </div>
+
+    <!-- Recent News with Sentiment -->
+    <div class="section">
+        <h2>📰 Recent News (Sentiment Analyzed)</h2>
+        {% if news_items %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Sentiment</th>
+                    <th>Score</th>
+                    <th>Relevance</th>
+                    <th>Headline</th>
+                    <th>Source</th>
+                    <th>Market</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in news_items %}
+                <tr>
+                    <td><span class="badge {{ item.sentiment }}">{{ item.sentiment }}</span></td>
+                    <td class="mono">
+                        {% if item.sentiment_score > 0 %}
+                            <span style="color:#34d399">+{{ "%.2f"|format(item.sentiment_score) }}</span>
+                        {% elif item.sentiment_score < 0 %}
+                            <span style="color:#f87171">{{ "%.2f"|format(item.sentiment_score) }}</span>
+                        {% else %}
+                            <span>0.00</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="score-bar">
+                            <div class="fill green" style="width: {{ (item.relevance * 100)|int }}%"></div>
+                        </div>
+                    </td>
+                    <td class="truncate"><a href="{{ item.url }}" target="_blank" style="color:#38bdf8;text-decoration:none;">{{ item.headline }}</a></td>
+                    <td>{{ item.source }}</td>
+                    <td class="truncate" style="max-width:200px; font-size:0.75rem; color:#64748b;">{{ item.market_question }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">No news articles yet.</div>
+        {% endif %}
+    </div>
+
+    <!-- Polymarket Top -->
+    <div class="section">
+        <h2>📈 Polymarket — Top Markets</h2>
+        {% if poly_markets %}
+        <table>
+            <thead><tr><th>#</th><th>Market</th><th>YES</th><th>Spread</th><th>Vol 24h</th><th>Liquidity</th></tr></thead>
+            <tbody>
+                {% for m in poly_markets %}
+                <tr>
+                    <td class="mono">{{ loop.index }}</td>
+                    <td class="truncate">{{ m.question }}</td>
+                    <td class="mono">{{ "%.3f"|format(m.yes_price) }}</td>
+                    <td class="mono">{{ m.spread_display }}</td>
+                    <td class="mono">${{ "%,.0f".format(m.volume_24h) }}</td>
+                    <td class="mono">${{ "%,.0f".format(m.liquidity) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">No Polymarket data.</div>
+        {% endif %}
+    </div>
+
+    <!-- Kalshi Top -->
+    <div class="section">
+        <h2>📊 Kalshi — Top Markets</h2>
+        {% if kalshi_markets %}
+        <table>
+            <thead><tr><th>#</th><th>Market</th><th>YES</th><th>Spread</th><th>Volume</th><th>OI</th></tr></thead>
+            <tbody>
+                {% for m in kalshi_markets %}
+                <tr>
+                    <td class="mono">{{ loop.index }}</td>
+                    <td class="truncate">{{ m.title }}</td>
+                    <td class="mono">{{ "%.2f"|format(m.yes_price) }}</td>
+                    <td class="mono">{{ m.spread_cents }}¢</td>
+                    <td class="mono">{{ "{:,}".format(m.volume) }}</td>
+                    <td class="mono">{{ "{:,}".format(m.open_interest) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">No Kalshi data.</div>
+        {% endif %}
+    </div>
+
+    <div class="footer">
+        Prediction Market Platform v0.1 &nbsp;|&nbsp; 
+        Data: Polymarket + Kalshi &nbsp;|&nbsp; 
+        Sentiment: {{ llm_backend }} &nbsp;|&nbsp;
+        Designed for AWS migration
+    </div>
+</body>
+</html>
