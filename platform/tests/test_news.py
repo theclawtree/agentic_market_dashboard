@@ -1,10 +1,10 @@
 """Tests for analysis/news.py."""
-from unittest.mock import patch, MagicMock
+
+from unittest.mock import MagicMock, patch
 
 import pandas as pd
-import pytest
 
-from analysis.news import fetch_news_for_markets, collect_news
+from analysis.news import collect_news, fetch_news_for_markets
 
 
 class TestFetchNewsForMarkets:
@@ -29,8 +29,13 @@ class TestFetchNewsForMarkets:
         """Same URL from different queries should not appear twice."""
         response = {
             "articles": [
-                {"title": "Same Article", "description": "Test", "source": {"name": "Test"},
-                 "url": "https://example.com/same", "publishedAt": "2026-02-18T10:00:00Z"},
+                {
+                    "title": "Same Article",
+                    "description": "Test",
+                    "source": {"name": "Test"},
+                    "url": "https://example.com/same",
+                    "publishedAt": "2026-02-18T10:00:00Z",
+                },
             ],
         }
         with patch("analysis.news.requests.get") as mock_get:

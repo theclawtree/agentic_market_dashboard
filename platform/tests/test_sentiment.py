@@ -1,15 +1,14 @@
 """Tests for analysis/sentiment.py."""
-import json
-from unittest.mock import patch, MagicMock
+
+from unittest.mock import MagicMock, patch
 
 import pandas as pd
-import pytest
 
 from analysis.sentiment import (
-    analyze_with_api,
-    analyze_with_ollama,
     _keyword_fallback,
     analyze_news_df,
+    analyze_with_api,
+    analyze_with_ollama,
 )
 
 
@@ -20,12 +19,16 @@ class TestKeywordFallback:
         assert result["sentiment_score"] > 0
 
     def test_bearish_keywords(self):
-        result = _keyword_fallback("Market crash and decline", "Prices drop sharply", "Will BTC go up?")
+        result = _keyword_fallback(
+            "Market crash and decline", "Prices drop sharply", "Will BTC go up?"
+        )
         assert result["sentiment"] == "bearish"
         assert result["sentiment_score"] < 0
 
     def test_neutral_no_keywords(self):
-        result = _keyword_fallback("Weather forecast today", "Sunny skies expected", "Will BTC go up?")
+        result = _keyword_fallback(
+            "Weather forecast today", "Sunny skies expected", "Will BTC go up?"
+        )
         assert result["sentiment"] == "neutral"
         assert result["sentiment_score"] == 0.0
 
@@ -43,11 +46,15 @@ class TestKeywordFallback:
 class TestAnalyzeWithApi:
     def test_successful_api_call(self):
         api_response = {
-            "choices": [{
-                "message": {
-                    "content": '{"sentiment": "bullish", "sentiment_score": 0.7, "relevance": 0.8}'
+            "choices": [
+                {
+                    "message": {
+                        "content": (
+                            '{"sentiment": "bullish", "sentiment_score": 0.7, "relevance": 0.8}'
+                        )
+                    }
                 }
-            }]
+            ]
         }
         with patch("analysis.sentiment.requests.post") as mock_post:
             mock_resp = MagicMock()
@@ -55,30 +62,43 @@ class TestAnalyzeWithApi:
             mock_resp.json.return_value = api_response
             mock_post.return_value = mock_resp
 
-            result = analyze_with_api("BTC surges", "Big gains", "Will BTC rise?",
-                                      "https://api.test.com/v1", "test-key", "gpt-4o-mini")
+            result = analyze_with_api(
+                "BTC surges",
+                "Big gains",
+                "Will BTC rise?",
+                "https://api.test.com/v1",
+                "test-key",
+                "gpt-4o-mini",
+            )
 
         assert result["sentiment"] == "bullish"
 
     def test_no_api_key_falls_back(self):
-        result = analyze_with_api("headline", "desc", "question",
-                                  "https://api.test.com/v1", "", "model")
+        result = analyze_with_api(
+            "headline", "desc", "question", "https://api.test.com/v1", "", "model"
+        )
         # Should use keyword fallback
         assert "sentiment" in result
 
     def test_api_error_falls_back(self):
         with patch("analysis.sentiment.requests.post", side_effect=Exception("timeout")):
-            result = analyze_with_api("headline", "desc", "question",
-                                      "https://api.test.com/v1", "key", "model")
+            result = analyze_with_api(
+                "headline", "desc", "question", "https://api.test.com/v1", "key", "model"
+            )
         assert "sentiment" in result
 
     def test_json_in_code_block(self):
         api_response = {
-            "choices": [{
-                "message": {
-                    "content": '```json\n{"sentiment": "bearish", "sentiment_score": -0.5, "relevance": 0.6}\n```'
+            "choices": [
+                {
+                    "message": {
+                        "content": (
+                            '```json\n{"sentiment": "bearish",'
+                            ' "sentiment_score": -0.5, "relevance": 0.6}\n```'
+                        )
+                    }
                 }
-            }]
+            ]
         }
         with patch("analysis.sentiment.requests.post") as mock_post:
             mock_resp = MagicMock()
@@ -86,8 +106,9 @@ class TestAnalyzeWithApi:
             mock_resp.json.return_value = api_response
             mock_post.return_value = mock_resp
 
-            result = analyze_with_api("test", "test", "test",
-                                      "https://api.test.com/v1", "key", "model")
+            result = analyze_with_api(
+                "test", "test", "test", "https://api.test.com/v1", "key", "model"
+            )
 
         assert result["sentiment"] == "bearish"
 
@@ -105,15 +126,17 @@ class TestAnalyzeWithOllama:
             mock_resp.json.return_value = ollama_response
             mock_post.return_value = mock_resp
 
-            result = analyze_with_ollama("headline", "desc", "question",
-                                         "http://localhost:11434", "llama3.2:3b")
+            result = analyze_with_ollama(
+                "headline", "desc", "question", "http://localhost:11434", "llama3.2:3b"
+            )
 
         assert result["sentiment"] == "neutral"
 
     def test_ollama_error_falls_back(self):
         with patch("analysis.sentiment.requests.post", side_effect=Exception("connection refused")):
-            result = analyze_with_ollama("headline", "desc", "question",
-                                         "http://localhost:11434", "model")
+            result = analyze_with_ollama(
+                "headline", "desc", "question", "http://localhost:11434", "model"
+            )
         assert "sentiment" in result
 
 
@@ -136,11 +159,15 @@ class TestAnalyzeNewsDf:
         sample_config["llm"]["api_key"] = "test-key"
 
         api_response = {
-            "choices": [{
-                "message": {
-                    "content": '{"sentiment": "bullish", "sentiment_score": 0.5, "relevance": 0.7}'
+            "choices": [
+                {
+                    "message": {
+                        "content": (
+                            '{"sentiment": "bullish", "sentiment_score": 0.5, "relevance": 0.7}'
+                        )
+                    }
                 }
-            }]
+            ]
         }
         with patch("analysis.sentiment.requests.post") as mock_post:
             mock_resp = MagicMock()

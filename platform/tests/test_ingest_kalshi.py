@@ -1,10 +1,10 @@
 """Tests for ingest/kalshi.py."""
-from unittest.mock import patch, MagicMock
 
-import pandas as pd
+from unittest.mock import MagicMock, patch
+
 import pytest
 
-from ingest.kalshi import fetch_markets, collect
+from ingest.kalshi import collect, fetch_markets
 
 
 class TestFetchMarkets:
@@ -57,20 +57,25 @@ class TestFetchMarkets:
 
     def test_max_markets_limit(self):
         events = {
-            "events": [{
-                "title": f"Event {i}",
-                "markets": [{
-                    "ticker": f"TICK-{i}",
-                    "title": f"Market {i}",
-                    "event_ticker": f"EVT-{i}",
-                    "yes_bid": 50,
-                    "yes_ask": 55,
-                    "volume": 1000 + i,
-                    "open_interest": 100,
-                    "close_time": "2026-03-01",
-                    "category": "Test",
-                }],
-            } for i in range(10)],
+            "events": [
+                {
+                    "title": f"Event {i}",
+                    "markets": [
+                        {
+                            "ticker": f"TICK-{i}",
+                            "title": f"Market {i}",
+                            "event_ticker": f"EVT-{i}",
+                            "yes_bid": 50,
+                            "yes_ask": 55,
+                            "volume": 1000 + i,
+                            "open_interest": 100,
+                            "close_time": "2026-03-01",
+                            "category": "Test",
+                        }
+                    ],
+                }
+                for i in range(10)
+            ],
         }
         with patch("ingest.kalshi.requests.get") as mock_get:
             mock_resp = MagicMock()

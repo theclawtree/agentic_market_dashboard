@@ -1,4 +1,5 @@
 """Performance and scalability tests."""
+
 import time
 from pathlib import Path
 
@@ -7,52 +8,56 @@ import pandas as pd
 import psutil
 import pytest
 
-from storage.writer import write_parquet, list_parquet_files
-from storage.reader import read_latest, read_range
-from analysis.ranking import rank_polymarket, rank_kalshi
+from analysis.ranking import rank_kalshi, rank_polymarket
 from analysis.sentiment import _keyword_fallback
+from storage.reader import read_latest
+from storage.writer import list_parquet_files, write_parquet
 
 
 def _make_large_poly_df(n: int) -> pd.DataFrame:
     """Generate a large Polymarket-like DataFrame."""
     rng = np.random.default_rng(42)
-    return pd.DataFrame({
-        "pull_ts": pd.Timestamp.now("UTC"),
-        "platform": "polymarket",
-        "question": [f"Market question {i}?" for i in range(n)],
-        "slug": [f"market-{i}" for i in range(n)],
-        "condition_id": [f"0x{i:08x}" for i in range(n)],
-        "yes_token": [f"tok_y_{i}" for i in range(n)],
-        "no_token": [f"tok_n_{i}" for i in range(n)],
-        "yes_price": rng.uniform(0.01, 0.99, n),
-        "no_price": rng.uniform(0.01, 0.99, n),
-        "volume_24h": rng.uniform(1000, 500000, n),
-        "liquidity": rng.uniform(10000, 1000000, n),
-        "volume_total": rng.uniform(100000, 10000000, n),
-        "end_date": "2026-12-31",
-        "spread": rng.uniform(0.001, 0.1, n),
-        "bid_depth_usd": rng.uniform(100, 50000, n),
-        "ask_depth_usd": rng.uniform(100, 50000, n),
-    })
+    return pd.DataFrame(
+        {
+            "pull_ts": pd.Timestamp.now("UTC"),
+            "platform": "polymarket",
+            "question": [f"Market question {i}?" for i in range(n)],
+            "slug": [f"market-{i}" for i in range(n)],
+            "condition_id": [f"0x{i:08x}" for i in range(n)],
+            "yes_token": [f"tok_y_{i}" for i in range(n)],
+            "no_token": [f"tok_n_{i}" for i in range(n)],
+            "yes_price": rng.uniform(0.01, 0.99, n),
+            "no_price": rng.uniform(0.01, 0.99, n),
+            "volume_24h": rng.uniform(1000, 500000, n),
+            "liquidity": rng.uniform(10000, 1000000, n),
+            "volume_total": rng.uniform(100000, 10000000, n),
+            "end_date": "2026-12-31",
+            "spread": rng.uniform(0.001, 0.1, n),
+            "bid_depth_usd": rng.uniform(100, 50000, n),
+            "ask_depth_usd": rng.uniform(100, 50000, n),
+        }
+    )
 
 
 def _make_large_kalshi_df(n: int) -> pd.DataFrame:
     rng = np.random.default_rng(42)
-    return pd.DataFrame({
-        "pull_ts": pd.Timestamp.now("UTC"),
-        "platform": "kalshi",
-        "ticker": [f"TICK-{i}" for i in range(n)],
-        "title": [f"Kalshi market {i}?" for i in range(n)],
-        "event_ticker": [f"EVT-{i}" for i in range(n)],
-        "yes_bid": rng.integers(10, 90, n),
-        "yes_ask": rng.integers(10, 90, n),
-        "yes_price": rng.uniform(0.1, 0.9, n),
-        "spread_cents": rng.integers(1, 20, n),
-        "volume": rng.integers(100, 100000, n),
-        "open_interest": rng.integers(100, 50000, n),
-        "close_time": "2026-12-31",
-        "category": "Test",
-    })
+    return pd.DataFrame(
+        {
+            "pull_ts": pd.Timestamp.now("UTC"),
+            "platform": "kalshi",
+            "ticker": [f"TICK-{i}" for i in range(n)],
+            "title": [f"Kalshi market {i}?" for i in range(n)],
+            "event_ticker": [f"EVT-{i}" for i in range(n)],
+            "yes_bid": rng.integers(10, 90, n),
+            "yes_ask": rng.integers(10, 90, n),
+            "yes_price": rng.uniform(0.1, 0.9, n),
+            "spread_cents": rng.integers(1, 20, n),
+            "volume": rng.integers(100, 100000, n),
+            "open_interest": rng.integers(100, 50000, n),
+            "close_time": "2026-12-31",
+            "category": "Test",
+        }
+    )
 
 
 @pytest.mark.performance
@@ -72,7 +77,7 @@ class TestWritePerformance:
     def test_write_50k_rows(self, tmp_path):
         df = _make_large_poly_df(50000)
         start = time.time()
-        path = write_parquet(df, str(tmp_path), "polymarket")
+        write_parquet(df, str(tmp_path), "polymarket")
         elapsed = time.time() - start
 
         assert elapsed < 15.0, f"Write 50k rows took {elapsed:.2f}s (expected <15s)"

@@ -1,9 +1,9 @@
 """Auto-delete parquet files older than retention period."""
-import os
+
 import shutil
-from pathlib import Path
-from datetime import datetime, timezone
 import sys
+from datetime import datetime, timezone
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from config_loader import get_config
@@ -14,14 +14,14 @@ def cleanup(data_dir: str = None, retention_days: int = None):
     cfg = get_config()
     data_dir = data_dir or cfg["storage"]["data_dir"]
     retention_days = retention_days or cfg["storage"]["retention_days"]
-    
+
     cutoff = datetime.now(timezone.utc).date()
     removed = 0
-    
+
     root = Path(data_dir)
     if not root.exists():
         return 0
-    
+
     for source_dir in root.iterdir():
         if not source_dir.is_dir():
             continue
@@ -37,7 +37,7 @@ def cleanup(data_dir: str = None, retention_days: int = None):
                 shutil.rmtree(date_dir)
                 removed += 1
                 print(f"  Removed: {date_dir} (age: {age} days)")
-    
+
     return removed
 
 
