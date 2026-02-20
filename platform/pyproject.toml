@@ -1,0 +1,64 @@
+[project]
+name = "prediction-market-platform"
+version = "0.1.0"
+description = "Automated prediction market data platform"
+requires-python = ">=3.10"
+dependencies = [
+    "pandas>=2.0",
+    "pyarrow>=14.0",
+    "requests>=2.31",
+    "pyyaml>=6.0",
+    "fastapi>=0.104",
+    "uvicorn>=0.24",
+    "jinja2>=3.1",
+    "py-clob-client>=0.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "pytest-asyncio>=0.23",
+    "httpx>=0.25",
+    "ruff>=0.1",
+    "mypy>=1.7",
+    "bandit>=1.7",
+    "pip-audit>=2.6",
+    "pre-commit>=3.6",
+    "pytest-timeout>=2.2",
+    "psutil>=5.9",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "performance: performance/scalability tests",
+]
+asyncio_mode = "auto"
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "S", "B", "UP"]
+ignore = ["S101", "S603", "S607"]  # allow assert in tests, subprocess calls
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+
+[tool.bandit]
+exclude_dirs = ["tests"]
+skips = ["B101"]
+
+[tool.coverage.run]
+source = ["."]
+omit = ["tests/*", "scripts/*", "dashboard/templates/*"]
+
+[tool.coverage.report]
+fail_under = 70
+show_missing = true

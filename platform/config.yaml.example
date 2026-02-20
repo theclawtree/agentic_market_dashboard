@@ -1,0 +1,61 @@
+# ─── Prediction Market Platform Configuration ─────────────────────────────────
+
+# Data ingestion
+ingest:
+  interval_minutes: 15          # How often to pull market data
+  polymarket:
+    enabled: true
+    min_volume_24h: 10000       # Minimum 24h volume to include
+    max_markets: 100            # Max markets per pull
+    enrich_books: true          # Pull order book data for top markets
+    book_top_n: 25              # How many markets to enrich with books
+  kalshi:
+    enabled: true
+    max_markets: 200
+    min_volume: 100
+
+# Storage
+storage:
+  data_dir: ./data              # Root directory for parquet files
+  retention_days: 30            # Delete files older than this
+  cleanup_interval_hours: 24    # How often to run cleanup
+
+# Analysis
+analysis:
+  top_n_markets: 20             # How many top markets to analyze
+  ranking_method: composite     # composite | volume | spread | momentum
+  news_queries_per_market: 1    # NewsAPI queries per top market
+  
+# News API
+news:
+  api_key: "YOUR_NEWSAPI_KEY_HERE"
+  max_articles_per_query: 5
+  language: en
+
+# LLM Sentiment Analysis
+llm:
+  backend: openai_compatible    # openai_compatible | ollama | keyword
+  # For openai_compatible: works with OpenAI, Anthropic, local servers
+  api_base: https://api.openai.com/v1
+  api_key: ""                   # Set via LLM_API_KEY env var
+  model: gpt-4o-mini            # Cheap + fast for sentiment
+  # For ollama:
+  ollama_url: http://localhost:11434
+  ollama_model: llama3.2:3b
+  # Fallback: keyword-based (no API needed)
+  temperature: 0.1
+  max_tokens: 300
+
+# Dashboard
+dashboard:
+  host: 0.0.0.0
+  port: 8051
+  auto_refresh_seconds: 300     # Dashboard auto-refresh interval
+
+# Trading parameters (reference, not used for execution)
+trading:
+  bankroll: 50000
+  fee_rate: 0.02
+  kelly_fraction: 0.25
+  max_position_pct: 0.10
+  min_edge: 0.03

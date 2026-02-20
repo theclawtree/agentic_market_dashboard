@@ -1,0 +1,42 @@
+# OpenClaw workspace (private)
+.openclaw/
+AGENTS.md
+SOUL.md
+USER.md
+IDENTITY.md
+MEMORY.md
+HEARTBEAT.md
+TOOLS.md
+memory/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Data (generated)
+platform/data/
+platform/.pytest_cache/
+platform/.venv/
+
+# IDE
+.vscode/
+.idea/
+
+# Coverage
+.coverage
+htmlcov/
+coverage.xml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+*.env
+config.yaml
