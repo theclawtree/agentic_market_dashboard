@@ -1,15 +1,13 @@
 """Tests for storage/writer.py, reader.py, and cleanup.py."""
-import os
-import shutil
-from datetime import datetime, timezone, timedelta
+
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pandas as pd
-import pytest
 
-from storage.writer import write_parquet, list_parquet_files
-from storage.reader import read_latest, read_range, get_market_history
 from storage.cleanup import cleanup
+from storage.reader import get_market_history, read_latest, read_range
+from storage.writer import list_parquet_files, write_parquet
 
 
 class TestWriteParquet:
@@ -82,14 +80,16 @@ class TestReadRange:
 class TestGetMarketHistory:
     def test_finds_market(self, tmp_path, poly_df):
         write_parquet(poly_df, str(tmp_path), "polymarket")
-        df = get_market_history(str(tmp_path), "polymarket", "0xabc123",
-                                id_col="condition_id", days_back=1)
+        df = get_market_history(
+            str(tmp_path), "polymarket", "0xabc123", id_col="condition_id", days_back=1
+        )
         assert len(df) == 1
 
     def test_market_not_found(self, tmp_path, poly_df):
         write_parquet(poly_df, str(tmp_path), "polymarket")
-        df = get_market_history(str(tmp_path), "polymarket", "nonexistent",
-                                id_col="condition_id", days_back=1)
+        df = get_market_history(
+            str(tmp_path), "polymarket", "nonexistent", id_col="condition_id", days_back=1
+        )
         assert df.empty
 
 

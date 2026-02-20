@@ -1,5 +1,6 @@
 """Tests for dashboard/app.py."""
-from unittest.mock import patch, MagicMock
+
+from unittest.mock import patch
 
 import pandas as pd
 import pytest
@@ -23,9 +24,11 @@ class TestDashboard:
     def test_homepage_empty_data(self, client):
         """Empty DataFrames cause KeyError in dashboard — known bug in app.py line 53."""
         empty = pd.DataFrame(columns=["question", "volume"])  # need columns to avoid KeyError
-        with patch("dashboard.app.load_latest", return_value=pd.DataFrame()), \
-             patch("dashboard.app.load_news", return_value=pd.DataFrame()), \
-             patch("dashboard.app.load_analysis", return_value=empty):
+        with (
+            patch("dashboard.app.load_latest", return_value=pd.DataFrame()),
+            patch("dashboard.app.load_news", return_value=pd.DataFrame()),
+            patch("dashboard.app.load_analysis", return_value=empty),
+        ):
             resp = client.get("/")
         assert resp.status_code == 200
 
@@ -39,9 +42,11 @@ class TestDashboard:
         analysis_df["opportunity_score"] = 0.8
         analysis_df["volume"] = analysis_df["volume_24h"]  # dashboard accesses .volume
 
-        with patch("dashboard.app.load_latest", side_effect=[poly_df, kalshi_df]), \
-             patch("dashboard.app.load_news", return_value=news_df_filled), \
-             patch("dashboard.app.load_analysis", return_value=analysis_df):
+        with (
+            patch("dashboard.app.load_latest", side_effect=[poly_df, kalshi_df]),
+            patch("dashboard.app.load_news", return_value=news_df_filled),
+            patch("dashboard.app.load_analysis", return_value=analysis_df),
+        ):
             resp = client.get("/")
         assert resp.status_code == 200
 

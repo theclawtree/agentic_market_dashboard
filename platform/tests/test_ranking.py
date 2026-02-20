@@ -1,8 +1,8 @@
 """Tests for analysis/ranking.py."""
-import pandas as pd
-import pytest
 
-from analysis.ranking import rank_polymarket, rank_kalshi, extract_search_terms
+import pandas as pd
+
+from analysis.ranking import extract_search_terms, rank_kalshi, rank_polymarket
 
 
 class TestRankPolymarket:
@@ -28,19 +28,23 @@ class TestRankPolymarket:
 
     def test_mid_range_price_preferred(self):
         """Markets at 0.50 should score higher on range_score than 0.05 or 0.95."""
-        df = pd.DataFrame([
-            {"yes_price": 0.50, "volume_24h": 100000, "spread": 0.02, "bid_depth_usd": 5000},
-            {"yes_price": 0.95, "volume_24h": 100000, "spread": 0.02, "bid_depth_usd": 5000},
-            {"yes_price": 0.05, "volume_24h": 100000, "spread": 0.02, "bid_depth_usd": 5000},
-        ])
+        df = pd.DataFrame(
+            [
+                {"yes_price": 0.50, "volume_24h": 100000, "spread": 0.02, "bid_depth_usd": 5000},
+                {"yes_price": 0.95, "volume_24h": 100000, "spread": 0.02, "bid_depth_usd": 5000},
+                {"yes_price": 0.05, "volume_24h": 100000, "spread": 0.02, "bid_depth_usd": 5000},
+            ]
+        )
         result = rank_polymarket(df, top_n=3)
         # First result should be the 0.50 price market
         assert result.iloc[0]["yes_price"] == 0.50
 
     def test_no_spread_column(self):
-        df = pd.DataFrame([
-            {"yes_price": 0.50, "volume_24h": 100000},
-        ])
+        df = pd.DataFrame(
+            [
+                {"yes_price": 0.50, "volume_24h": 100000},
+            ]
+        )
         result = rank_polymarket(df)
         assert len(result) == 1
         assert result.iloc[0]["spread_score"] == 0.5  # default
@@ -56,10 +60,12 @@ class TestRankKalshi:
         assert rank_kalshi(pd.DataFrame()).empty
 
     def test_tight_spread_preferred(self):
-        df = pd.DataFrame([
-            {"yes_price": 0.50, "volume": 10000, "spread_cents": 1},
-            {"yes_price": 0.50, "volume": 10000, "spread_cents": 15},
-        ])
+        df = pd.DataFrame(
+            [
+                {"yes_price": 0.50, "volume": 10000, "spread_cents": 1},
+                {"yes_price": 0.50, "volume": 10000, "spread_cents": 15},
+            ]
+        )
         result = rank_kalshi(df, top_n=2)
         assert result.iloc[0]["spread_cents"] == 1
 

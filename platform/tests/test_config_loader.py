@@ -1,23 +1,27 @@
 """Tests for config_loader.py."""
+
 import os
-import yaml
-from pathlib import Path
 
 import pytest
+import yaml
 
-from config_loader import load_config, get_config, _cfg
+from config_loader import get_config, load_config
 
 
 @pytest.fixture
 def config_file(tmp_path):
     """Write a minimal config.yaml to tmp_path and return its path."""
     cfg = {
-        "ingest": {"interval_minutes": 10, "polymarket": {"enabled": True}, "kalshi": {"enabled": True}},
+        "ingest": {
+            "interval_minutes": 10,
+            "polymarket": {"enabled": True},
+            "kalshi": {"enabled": True},
+        },
         "storage": {"data_dir": "./data", "retention_days": 7},
         "news": {"api_key": "default-key"},
         "llm": {"api_key": ""},
         "analysis": {"top_n_markets": 10},
-        "dashboard": {"host": "0.0.0.0", "port": 8051, "auto_refresh_seconds": 60},
+        "dashboard": {"host": "0.0.0.0", "port": 8051, "auto_refresh_seconds": 60},  # noqa: S104
     }
     p = tmp_path / "config.yaml"
     p.write_text(yaml.dump(cfg))
@@ -38,7 +42,11 @@ def test_load_config_resolves_relative_data_dir(config_file):
 
 def test_load_config_absolute_data_dir_unchanged(tmp_path):
     cfg_data = {
-        "ingest": {"interval_minutes": 5, "polymarket": {"enabled": True}, "kalshi": {"enabled": True}},
+        "ingest": {
+            "interval_minutes": 5,
+            "polymarket": {"enabled": True},
+            "kalshi": {"enabled": True},
+        },
         "storage": {"data_dir": "/absolute/path", "retention_days": 3},
         "news": {"api_key": ""},
         "llm": {"api_key": ""},
@@ -66,6 +74,7 @@ def test_env_override_llm_key(config_file, monkeypatch):
 def test_get_config_singleton(monkeypatch):
     """get_config returns cached singleton."""
     import config_loader
+
     monkeypatch.setattr(config_loader, "_cfg", None)
     # Will load from default CONFIG_PATH — just verify it doesn't crash
     # and returns a dict

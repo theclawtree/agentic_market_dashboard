@@ -1,11 +1,11 @@
 """Tests for ingest/polymarket.py."""
-import json
-from unittest.mock import patch, MagicMock
+
+from unittest.mock import MagicMock, patch
 
 import pandas as pd
 import pytest
 
-from ingest.polymarket import fetch_markets, enrich_order_books, collect
+from ingest.polymarket import collect, enrich_order_books, fetch_markets
 
 
 class TestFetchMarkets:
@@ -35,12 +35,14 @@ class TestFetchMarkets:
         assert len(df) == 0
 
     def test_malformed_tokens_skipped(self):
-        data = [{
-            "question": "Bad market",
-            "clobTokenIds": "not-json",
-            "outcomePrices": "[0.5, 0.5]",
-            "volume24hr": "50000",
-        }]
+        data = [
+            {
+                "question": "Bad market",
+                "clobTokenIds": "not-json",
+                "outcomePrices": "[0.5, 0.5]",
+                "volume24hr": "50000",
+            }
+        ]
         with patch("ingest.polymarket.requests.get") as mock_get:
             mock_resp = MagicMock()
             mock_resp.json.return_value = data
