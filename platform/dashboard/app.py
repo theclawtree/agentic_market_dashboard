@@ -42,7 +42,8 @@ def load_news() -> pd.DataFrame:
     dfs = [pd.read_parquet(f) for f in files[-5:]]  # last 5 files
     if not dfs:
         return pd.DataFrame()
-    return pd.concat(dfs, ignore_index=True).drop_duplicates(subset=["url"])
+    result: pd.DataFrame = pd.concat(dfs, ignore_index=True).drop_duplicates(subset=["url"])
+    return result
 
 
 @app.get("/", response_class=HTMLResponse)

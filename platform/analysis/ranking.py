@@ -53,7 +53,10 @@ def rank_polymarket(df: pd.DataFrame, top_n: int = 20) -> pd.DataFrame:
         + 0.20 * df["depth_score"]
     )
 
-    return df.sort_values("opportunity_score", ascending=False).head(top_n).reset_index(drop=True)
+    result: pd.DataFrame = (
+        df.sort_values("opportunity_score", ascending=False).head(top_n).reset_index(drop=True)
+    )
+    return result
 
 
 def rank_kalshi(df: pd.DataFrame, top_n: int = 20) -> pd.DataFrame:
@@ -77,7 +80,10 @@ def rank_kalshi(df: pd.DataFrame, top_n: int = 20) -> pd.DataFrame:
         0.40 * df["vol_score"] + 0.30 * df["spread_score"] + 0.30 * df["range_score"]
     )
 
-    return df.sort_values("opportunity_score", ascending=False).head(top_n).reset_index(drop=True)
+    result: pd.DataFrame = (
+        df.sort_values("opportunity_score", ascending=False).head(top_n).reset_index(drop=True)
+    )
+    return result
 
 
 def extract_search_terms(row: pd.Series) -> str:

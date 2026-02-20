@@ -1,17 +1,20 @@
 """Load and validate platform configuration."""
 
+from __future__ import annotations
+
 import os
 from pathlib import Path
+from typing import Any
 
 import yaml
 
 CONFIG_PATH = Path(__file__).parent / "config.yaml"
 
 
-def load_config(path: str = None) -> dict:
+def load_config(path: str | None = None) -> dict[str, Any]:
     p = Path(path) if path else CONFIG_PATH
     with open(p) as f:
-        cfg = yaml.safe_load(f)
+        cfg: dict[str, Any] = yaml.safe_load(f)
 
     # Override secrets from environment
     if os.environ.get("NEWSAPI_KEY"):
@@ -28,10 +31,10 @@ def load_config(path: str = None) -> dict:
 
 
 # Singleton
-_cfg = None
+_cfg: dict[str, Any] | None = None
 
 
-def get_config() -> dict:
+def get_config() -> dict[str, Any]:
     global _cfg
     if _cfg is None:
         _cfg = load_config()

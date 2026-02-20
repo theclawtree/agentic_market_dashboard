@@ -13,15 +13,16 @@ CLOB_API = "https://clob.polymarket.com"
 
 def fetch_markets(min_volume: float = 10000, max_markets: int = 100) -> pd.DataFrame:
     """Fetch active Polymarket markets as a DataFrame."""
+    params: dict[str, str | int] = {
+        "limit": max_markets,
+        "active": "true",
+        "closed": "false",
+        "order": "volume24hr",
+        "ascending": "false",
+    }
     r = requests.get(
         f"{GAMMA_API}/markets",
-        params={
-            "limit": max_markets,
-            "active": "true",
-            "closed": "false",
-            "order": "volume24hr",
-            "ascending": "false",
-        },
+        params=params,
         timeout=20,
     )
     r.raise_for_status()

@@ -32,15 +32,16 @@ def fetch_news_for_markets(
             continue
 
         try:
+            params: dict[str, str | int] = {
+                "apiKey": api_key,
+                "q": query,
+                "language": "en",
+                "sortBy": "publishedAt",
+                "pageSize": max_articles,
+            }
             r = requests.get(
                 NEWSAPI_URL,
-                params={
-                    "apiKey": api_key,
-                    "q": query,
-                    "language": "en",
-                    "sortBy": "publishedAt",
-                    "pageSize": max_articles,
-                },
+                params=params,
                 timeout=10,
             )
             if r.status_code != 200:
