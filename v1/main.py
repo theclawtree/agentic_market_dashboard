@@ -20,11 +20,11 @@ from config import BANKROLL
 
 def print_header():
     print("""
-╔══════════════════════════════════════════════════╗
-║    V1 Informed Trading Bot - Paper Mode          ║
-║    Polymarket + Kalshi Market Scanner             ║
-╚══════════════════════════════════════════════════╝
-""")
+    ╔══════════════════════════════════════╗
+    ║ V1 Informed Trading Bot - Paper Mode ║
+    ║ Polymarket + Kalshi Market Scanner   ║
+    ╚══════════════════════════════════════╝
+    """)
 
 
 def scan_markets():
@@ -45,26 +45,26 @@ def scan_markets():
 
 def print_market_table(poly_markets, kalshi_markets):
     """Print top markets from both platforms."""
-    print(f"\n{'─'*90}")
+    print(f"\n{'─'*30}")
     print(f"  TOP POLYMARKET MARKETS (by 24h volume)")
-    print(f"{'─'*90}")
-    print(f"  {'#':>2}  {'Market':<55} {'YES':>6} {'Spread':>7} {'Vol24h':>12}")
+    print(f"{'─'*30}")
+    print(f"  {'#':>2}  {'Market':<20} {'YES':>6} {'Spread':>7} {'Vol24h':>12}")
     print(f"  {'─'*2}  {'─'*55} {'─'*6} {'─'*7} {'─'*12}")
     
     for i, m in enumerate(poly_markets[:12]):
         q = m.question[:55]
         spread = f"{m.spread:.3f}" if m.spread > 0 else "N/A"
-        print(f"  {i+1:2}  {q:<55} {m.yes_price:6.3f} {spread:>7} ${m.volume_24h:>10,.0f}")
+        print(f"  {i+1:2}  {q:<20} {m.yes_price:6.3f} {spread:>7} ${m.volume_24h:>10,.0f}")
 
-    print(f"\n{'─'*90}")
+    print(f"\n{'─'*30}")
     print(f"  TOP KALSHI MARKETS (by volume)")
-    print(f"{'─'*90}")
-    print(f"  {'#':>2}  {'Market':<55} {'Yes':>6} {'Spread':>7} {'Volume':>10}")
+    print(f"{'─'*30}")
+    print(f"  {'#':>2}  {'Market':<20} {'Yes':>6} {'Spread':>7} {'Volume':>10}")
     print(f"  {'─'*2}  {'─'*55} {'─'*6} {'─'*7} {'─'*10}")
     
     for i, m in enumerate(kalshi_markets[:12]):
         t = m.title[:55]
-        print(f"  {i+1:2}  {t:<55} {m.yes_price:6.2f} {m.spread_cents:>5}¢  {m.volume:>10,}")
+        print(f"  {i+1:2}  {t:<20} {m.yes_price:6.2f} {m.spread_cents:>5}¢  {m.volume:>10,}")
 
 
 def print_signals(signals):
@@ -73,9 +73,9 @@ def print_signals(signals):
         print("\n  📭 No signals detected (Fed RSS only without API keys)")
         return
     
-    print(f"\n{'─'*90}")
+    print(f"\n{'─'*30}")
     print(f"  ACTIVE SIGNALS")
-    print(f"{'─'*90}")
+    print(f"{'─'*30}")
     for s in signals[:10]:
         arrow = "🟢↑" if s.direction > 0 else "🔴↓" if s.direction < 0 else "⚪→"
         print(f"  {arrow} [{s.category_name}] conf={s.confidence:.2f} dir={s.direction:+.2f}")
@@ -89,9 +89,9 @@ def print_decisions(decisions):
         print("\n  📭 No trade opportunities found (need stronger signals)")
         return
     
-    print(f"\n{'─'*90}")
+    print(f"\n{'─'*30}")
     print(f"  TRADE DECISIONS (paper mode)")
-    print(f"{'─'*90}")
+    print(f"{'─'*30}")
     for d in decisions[:5]:
         arrow = "🟢 BUY YES" if d.direction == "buy_yes" else "🔴 BUY NO"
         print(f"  {arrow}: ${d.size_usd:,.0f}")
