@@ -8,10 +8,14 @@ from typing import Any
 
 import yaml
 
+CONFIG_PATH = Path(__file__).parent / "config.yaml"
 
 def load_config(path: str | None = None) -> dict[str, Any]:
-    CONFIG_PATH = Path(__file__).parent / "config.yaml"
+    """Load configuration from file or environment variables."""
     p = Path(path) if path else CONFIG_PATH
+    if not p.exists():
+        print(f"Config file not found: {p}")
+        return None
     with open(p) as f:
         cfg: dict[str, Any] = yaml.safe_load(f)
 
