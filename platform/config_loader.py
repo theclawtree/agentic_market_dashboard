@@ -10,6 +10,7 @@ import yaml
 
 CONFIG_PATH = Path(__file__).parent / "config.yaml"
 
+
 def load_config(path: str | None = None) -> dict[str, Any]:
     """Load configuration from file or environment variables."""
     p = Path(path) if path else CONFIG_PATH
