@@ -29,6 +29,9 @@ dev = [
     "psutil>=5.9",
 ]
 
+[tool.setuptools.packages.find]
+include = ["ingest*", "storage*", "analysis*", "dashboard*"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = [
