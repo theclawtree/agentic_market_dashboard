@@ -8,10 +8,18 @@ from typing import Any
 
 import yaml
 
-CONFIG_PATH = Path(__file__).parent / "config.yaml"
-
 
 def load_config(path: str | None = None) -> dict[str, Any]:
+    """
+    Load configuration from a YAML file.
+    
+    Args:
+        path: Optional path to config file. If not provided, uses config.yaml in the same directory as this module.
+        
+    Returns:
+        Dictionary containing the configuration.
+    """
+    CONFIG_PATH = Path(__file__).parent / "config.yaml"
     p = Path(path) if path else CONFIG_PATH
     with open(p) as f:
         cfg: dict[str, Any] = yaml.safe_load(f)
