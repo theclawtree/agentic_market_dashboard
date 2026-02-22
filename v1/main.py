@@ -20,10 +20,8 @@ from config import BANKROLL
 
 def print_header():
     print("""
-    ╔══════════════════════════════════════╗
-    ║ V1 Informed Trading Bot - Paper Mode ║
-    ║ Polymarket + Kalshi Market Scanner   ║
-    ╚══════════════════════════════════════╝
+    V1 Informed Trading Bot - Paper Mode
+    Polymarket + Kalshi Market Scanner  
     """)
 
 

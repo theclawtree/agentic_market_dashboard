@@ -23,7 +23,7 @@ def config_file(tmp_path):
         "analysis": {"top_n_markets": 10},
         "dashboard": {"host": "0.0.0.0", "port": 8051, "auto_refresh_seconds": 60},  # noqa: S104
     }
-    p = tmp_path / "config.yaml"
+    p = tmp_path / "config.yaml.example"
     p.write_text(yaml.dump(cfg))
     return str(p)
 
@@ -53,7 +53,7 @@ def test_load_config_absolute_data_dir_unchanged(tmp_path):
         "analysis": {},
         "dashboard": {},
     }
-    p = tmp_path / "config.yaml"
+    p = tmp_path / "config.yaml.example"
     p.write_text(yaml.dump(cfg_data))
     cfg = load_config(str(p))
     assert cfg["storage"]["data_dir"] == "/absolute/path"
