@@ -12,12 +12,14 @@ from config_loader import get_config
 def cleanup(data_dir: str | None = None, retention_days: int | None = None) -> int:
     """Delete date-partitioned directories older than retention_days."""
     cfg = get_config()
-    data_dir = data_dir or cfg["storage"]["data_dir"]
-    retention_days = retention_days or cfg["storage"]["retention_days"]
+    if cfg["storage"]["data_dir"] and cfg["storage"]["retention_days"]:
+        data_dir = cfg["storage"]["data_dir"]
+        retention_days = cfg["storage"]["retention_days"]
+    if not data_dir or not retention_days:
+        raise ValueError("data_dir and retention_days must be provided")
 
     cutoff = datetime.now(timezone.utc).date()
     removed = 0
-
     root = Path(data_dir)
     if not root.exists():
         return 0

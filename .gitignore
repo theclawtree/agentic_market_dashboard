@@ -41,3 +41,5 @@ Thumbs.db
 *.env
 config.yaml
 platform/.mypy_cache/
+
+uv.lock
