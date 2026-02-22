@@ -10,7 +10,7 @@ import yaml
 
 
 def load_config(path: str | None = None) -> dict[str, Any]:
-    CONFIG_PATH = Path(__file__).parent / "config.yaml.example"
+    CONFIG_PATH = Path(__file__).parent / "config.yaml"
     p = Path(path) if path else CONFIG_PATH
     with open(p) as f:
         cfg: dict[str, Any] = yaml.safe_load(f)
