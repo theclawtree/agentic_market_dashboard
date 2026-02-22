@@ -10,8 +10,6 @@ from storage.reader import get_market_history, read_latest, read_range
 from storage.writer import list_parquet_files, write_parquet
 
 
-
-
 class TestWriteParquet:
     def test_basic_write(self, tmp_path, poly_df):
         path = write_parquet(poly_df, str(tmp_path), "polymarket")

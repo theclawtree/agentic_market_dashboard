@@ -17,7 +17,7 @@ def cleanup(data_dir: str | None = None, retention_days: int | None = None) -> i
         retention_days = cfg["storage"]["retention_days"]
     if not data_dir or not retention_days:
         raise ValueError("data_dir and retention_days must be provided")
-    
+
     cutoff = datetime.now(timezone.utc).date()
     removed = 0
     root = Path(data_dir)
