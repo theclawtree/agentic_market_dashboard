@@ -82,14 +82,15 @@ async def dashboard(request: Request):
             elif avg_sentiment < -0.15:
                 dominant = "bearish"
 
-            spread_val = row.get("spread", None)
-            spread_cents_val = row.get("spread_cents", None)
+            spread_val = float(row.get("spread", 0.00))
+            spread_cents_val = float(row.get("spread_cents", 0.00))
             if row.get("platform") == "kalshi":
+                fallback = 99.00
                 spread_display = (
-                    f"{int(spread_cents_val)}¢" if pd.notna(spread_cents_val) else "N/A"
+                    f"{int(spread_cents_val)}¢" if pd.notna(spread_cents_val) else fallback
                 )
             else:
-                spread_display = f"{spread_val:.3f}" if pd.notna(spread_val) else "N/A"
+                spread_display = f"{spread_val:.3f}" if pd.notna(spread_val) else fallback
 
             opportunities.append(
                 {
